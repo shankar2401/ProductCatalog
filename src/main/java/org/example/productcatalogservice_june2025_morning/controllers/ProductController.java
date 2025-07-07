@@ -1,0 +1,66 @@
+package org.example.productcatalogservice_june2025_morning.controllers;
+
+import lombok.Delegate;
+import org.example.productcatalogservice_june2025_morning.Services.iProductService;
+import org.example.productcatalogservice_june2025_morning.dtos.ProductDto;
+import org.example.productcatalogservice_june2025_morning.models.Product;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+public class ProductController {
+    @Autowired
+    private iProductService iProductService;
+    iProductService iproductService;
+    @GetMapping("/products")
+    public List<ProductDto> getAllProducts() {
+        List<Product> products = iProductService.getAllProducts();
+        List<ProductDto> productDtos = new ArrayList<>();
+
+        for (Product product : products) {
+            productDtos.add(from(product));
+        }
+        return productDtos;
+    }
+    @GetMapping("/products/{id}")
+    public ResponseEntity<ProductDto>  getProductById(@PathVariable(name = "id") Long productid) {
+
+        if (productid <= 0) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+        Product product = iProductService.getProductById(productid);
+        if (product == null) {return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        ProductDto productDto = from(product);
+        return  new ResponseEntity<>(productDto, HttpStatus.OK);
+    }
+    @PostMapping("/products")
+    public ProductDto createProduct(@RequestBody Product product) {
+        return null;
+    }
+    @DeleteMapping("/products")
+    public Product deleteProduct(@RequestBody Product product) {
+        return product;
+    }
+    @PutMapping("/products")
+    public Product updateProduct(@RequestBody Product product) {
+        return product;
+    }
+    private ProductDto from(Product product) {
+        ProductDto productDto = new ProductDto();
+        productDto.setId(product.getId());
+        productDto.setName(product.getName());
+        productDto.setDescription(product.getDescription());
+        productDto.setPrice(product.getPrice());
+        productDto.setCategory(product.getCategory());
+        productDto.setImageUrl(product.getImageUrl());
+        return productDto;
+    }
+}

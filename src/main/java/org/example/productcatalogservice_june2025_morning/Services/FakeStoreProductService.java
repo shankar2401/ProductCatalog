@@ -1,5 +1,6 @@
 package org.example.productcatalogservice_june2025_morning.Services;
 
+import org.example.productcatalogservice_june2025_morning.client.FakeStoreClient;
 import org.example.productcatalogservice_june2025_morning.dtos.FakeStoreProductDto;
 import org.example.productcatalogservice_june2025_morning.models.Category;
 import org.example.productcatalogservice_june2025_morning.models.Product;
@@ -18,6 +19,8 @@ import java.util.List;
 public class FakeStoreProductService implements iProductService{
     @Autowired
     RestTemplateBuilder restTemplateBuilder;
+    @Autowired
+    FakeStoreClient fakeStoreClient;
     @Override
     public List<Product> getAllProducts() {
         RestTemplate restTemplate = restTemplateBuilder.build();
@@ -43,25 +46,53 @@ public class FakeStoreProductService implements iProductService{
     }
 
     @Override
-    public Product getProductById(Long productId) {
+    public Product getProductById(Long proudctID) {
+        FakeStoreProductDto fakeStoreProductDto = fakeStoreClient.getProductById(proudctID);
+        if (fakeStoreProductDto == null) {
+            return null;
+        }
+        return from(fakeStoreProductDto);
+    }
+    //before client service layer implementation
+   /* public Product getProductById(Long productId) {
         RestTemplate restTemplate = restTemplateBuilder.build();
-        /*FakeStoreProductDto fakeStoreProductDto = restTemplate.getForObject("https://fakestoreapi.com/products/{productId}",
+        *//*FakeStoreProductDto fakeStoreProductDto = restTemplate.getForObject("https://fakestoreapi.com/products/{productId}",
                 FakeStoreProductDto.class,
-                productId);*/
+                productId);*//*
+
         ResponseEntity<FakeStoreProductDto> fakeStoreProductDtoResponseEntity = restTemplate.getForEntity("https://fakestoreapi.com/products/{productId}",
                 FakeStoreProductDto.class,
                 productId);
+
         if (fakeStoreProductDtoResponseEntity.getStatusCode().equals(HttpStatus.valueOf(200)) &&  fakeStoreProductDtoResponseEntity.hasBody()) {
             return from(fakeStoreProductDtoResponseEntity.getBody());
         }
         return null;
-    }
+    }*/
 
 
 
     @Override
     public Product createProduct(Product product) {
-        return null;
+        FakeStoreProductDto inputfakeStoreProductDto = from(product);
+        FakeStoreProductDto fakeStoreProductDto = fakeStoreClient.createProduct(inputfakeStoreProductDto);
+        if (fakeStoreProductDto == null) {
+            return null;
+        }
+        return from(fakeStoreProductDto);
+    }
+    private FakeStoreProductDto from(Product product) {
+        FakeStoreProductDto fakeStoreProductDto = new FakeStoreProductDto();
+        fakeStoreProductDto.setId(product.getId());
+        fakeStoreProductDto.setTitle(product.getName());
+        fakeStoreProductDto.setDescription(product.getDescription());
+        fakeStoreProductDto.setId(product.getId());
+        fakeStoreProductDto.setUrl(product.getImageUrl());
+        if (fakeStoreProductDto.getCategory() != null) {
+            fakeStoreProductDto.setCategory(product.getCategory().getName());
+        }
+
+        return fakeStoreProductDto;
     }
     private Product from(FakeStoreProductDto fakeStoreProductDto) {
         Product product = new Product();
@@ -74,4 +105,5 @@ public class FakeStoreProductService implements iProductService{
         product.setCategory(category);
         return product;
             }
+
 }

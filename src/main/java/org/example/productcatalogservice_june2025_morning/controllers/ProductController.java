@@ -2,7 +2,9 @@ package org.example.productcatalogservice_june2025_morning.controllers;
 
 import lombok.Delegate;
 import org.example.productcatalogservice_june2025_morning.Services.iProductService;
+import org.example.productcatalogservice_june2025_morning.dtos.FakeStoreProductDto;
 import org.example.productcatalogservice_june2025_morning.dtos.ProductDto;
+import org.example.productcatalogservice_june2025_morning.models.Category;
 import org.example.productcatalogservice_june2025_morning.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +19,6 @@ import java.util.List;
 public class ProductController {
     @Autowired
     private iProductService iProductService;
-    iProductService iproductService;
     @GetMapping("/products")
     public List<ProductDto> getAllProducts() {
         List<Product> products = iProductService.getAllProducts();
@@ -42,8 +43,13 @@ public class ProductController {
         return  new ResponseEntity<>(productDto, HttpStatus.OK);
     }
     @PostMapping("/products")
-    public ProductDto createProduct(@RequestBody Product product) {
-        return null;
+    public ProductDto createProduct(@RequestBody ProductDto productDto) {
+        Product input = from(productDto);
+        Product output = iProductService.createProduct(input);
+        if (output == null) {
+            return null;
+        }
+        return from(output);
     }
     @DeleteMapping("/products")
     public Product deleteProduct(@RequestBody Product product) {
@@ -62,5 +68,21 @@ public class ProductController {
         productDto.setCategory(product.getCategory());
         productDto.setImageUrl(product.getImageUrl());
         return productDto;
+    }
+    private Product from(ProductDto productDto){
+        Product product = new Product();
+        product.setId(productDto.getId());
+        product.setName(productDto.getName());
+        product.setDescription(productDto.getDescription());
+        product.setPrice(productDto.getPrice());
+        product.setImageUrl(productDto.getImageUrl());
+        if(productDto.getImageUrl() != null) {
+            Category category = new Category();
+            category.setId(productDto.getCategory().getId());
+            category.setName(productDto.getCategory().getName());
+            category.setDescription(productDto.getCategory().getDescription());
+            product.setCategory(category);
+        }
+        return product;
     }
 }

@@ -23,7 +23,9 @@ public class ProductController {
     public List<ProductDto> getAllProducts() {
         List<Product> products = iProductService.getAllProducts();
         List<ProductDto> productDtos = new ArrayList<>();
-
+        if (products == null || products.isEmpty() || products.size() < 1) {
+            throw  new NullPointerException("products is null or empty");
+        }
         for (Product product : products) {
             productDtos.add(from(product));
         }
@@ -33,10 +35,13 @@ public class ProductController {
     public ResponseEntity<ProductDto>  getProductById(@PathVariable(name = "id") Long productid) {
 
         if (productid <= 0) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            //return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            throw  new IllegalArgumentException("productid should be greater than 0");
         }
         Product product = iProductService.getProductById(productid);
-        if (product == null) {return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        if (product == null) {
+           // return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            throw new NullPointerException("product is null");
         }
 
         ProductDto productDto = from(product);
@@ -45,19 +50,39 @@ public class ProductController {
     @PostMapping("/products")
     public ProductDto createProduct(@RequestBody ProductDto productDto) {
         Product input = from(productDto);
+
         Product output = iProductService.createProduct(input);
-        if (output == null) {
-            return null;
+        if (output == null ) {
+            throw new NullPointerException("product is null");
         }
+
         return from(output);
     }
-    @DeleteMapping("/products")
-    public Product deleteProduct(@RequestBody Product product) {
-        return product;
+    @DeleteMapping("/products/{id}")
+    public ProductDto deleteProduct(@PathVariable(name = "id") Long productId) {
+        if (productId <= 0){
+            throw  new IllegalArgumentException("productid should be greater than 0");
+        }
+        Product product = iProductService.deleteProductById(productId);
+        if (product == null){
+            throw new NullPointerException("Product is null");
+        }
+        return from(product);
     }
-    @PutMapping("/products")
-    public Product updateProduct(@RequestBody Product product) {
-        return product;
+
+    @PutMapping("/products/{id}")
+    public ProductDto replaceProduct(@PathVariable(name = "id") Long productid, @RequestBody ProductDto productDto) {
+        if (productid <= 0) {
+            //return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            throw  new IllegalArgumentException("productid should be greater than 0");
+        }
+        Product input = from(productDto);
+        Product output = iProductService.replaceProduct(productid, input);
+        if (output == null) {
+            // return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            throw new NullPointerException("product is null");
+        }
+        return from(output);
     }
     private ProductDto from(Product product) {
         ProductDto productDto = new ProductDto();

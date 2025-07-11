@@ -17,12 +17,25 @@ import java.util.ArrayList;
 import java.util.List;
 @Service
 public class FakeStoreProductService implements iProductService{
-    @Autowired
-    RestTemplateBuilder restTemplateBuilder;
+    //Before client APi
+    /*@Autowired
+    RestTemplateBuilder restTemplateBuilder;*/
     @Autowired
     FakeStoreClient fakeStoreClient;
     @Override
     public List<Product> getAllProducts() {
+        FakeStoreProductDto[] fakeStoreProductDtos = fakeStoreClient.getAllFakeStoreProducts();
+        List<Product> products = new ArrayList<>();
+        if (fakeStoreProductDtos != null && fakeStoreProductDtos.length > 0) {
+            for (FakeStoreProductDto fakeStoreProductDto : fakeStoreProductDtos) {
+                products.add(from(fakeStoreProductDto));
+            }
+            return products;
+        }
+        return null;
+    }
+
+    /*public List<Product> getAllProducts() {
         RestTemplate restTemplate = restTemplateBuilder.build();
         FakeStoreProductDto[] fakeStoreProductDtos = restTemplate.getForObject("https://fakestoreapi.com/products",FakeStoreProductDto[].class);
 
@@ -33,7 +46,7 @@ public class FakeStoreProductService implements iProductService{
             }
             return products;
         }
-        /*ResponseEntity<List<FakeStoreProductDto>> listRespnoseEntity = restTemplate.exchange("https://fakestoreapi.com/products", HttpMethod.GET, null, new ParameterizedTypeReference<List<FakeStoreProductDto>>() {});
+        *//*ResponseEntity<List<FakeStoreProductDto>> listRespnoseEntity = restTemplate.exchange("https://fakestoreapi.com/products", HttpMethod.GET, null, new ParameterizedTypeReference<List<FakeStoreProductDto>>() {});
         List<FakeStoreProductDto> fakeStoreProductDtos = listRespnoseEntity.getBody();
         List<Product> products = new ArrayList<>();
         if (fakeStoreProductDtos != null) {
@@ -41,9 +54,9 @@ public class FakeStoreProductService implements iProductService{
                 Product product = from(fakeStoreProductDto);
                 products.add(product);
             }
-        }*/
+        }*//*
         return null;
-    }
+    }*/
 
     @Override
     public Product getProductById(Long proudctID) {
@@ -81,6 +94,27 @@ public class FakeStoreProductService implements iProductService{
         }
         return from(fakeStoreProductDto);
     }
+
+    @Override
+    public Product replaceProduct(Long productId, Product product) {
+        FakeStoreProductDto inputfakeStoreProductDto = from(product);
+        FakeStoreProductDto fakeStoreProductDto = fakeStoreClient.replaceProduct(productId, inputfakeStoreProductDto);
+        if (fakeStoreProductDto == null) {
+            return null;
+        }
+        return from(fakeStoreProductDto);
+    }
+
+    @Override
+    public Product deleteProductById(Long id) {
+        FakeStoreProductDto fakeStoreProductDto = fakeStoreClient.deleteProductById(id);
+        if (fakeStoreProductDto == null) {
+            return null;
+        }
+
+        return from(fakeStoreProductDto);
+    }
+
     private FakeStoreProductDto from(Product product) {
         FakeStoreProductDto fakeStoreProductDto = new FakeStoreProductDto();
         fakeStoreProductDto.setId(product.getId());

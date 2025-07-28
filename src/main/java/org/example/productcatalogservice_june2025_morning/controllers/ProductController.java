@@ -2,11 +2,13 @@ package org.example.productcatalogservice_june2025_morning.controllers;
 
 import lombok.Delegate;
 import org.example.productcatalogservice_june2025_morning.Services.iProductService;
+import org.example.productcatalogservice_june2025_morning.dtos.CategoryDto;
 import org.example.productcatalogservice_june2025_morning.dtos.FakeStoreProductDto;
 import org.example.productcatalogservice_june2025_morning.dtos.ProductDto;
 import org.example.productcatalogservice_june2025_morning.models.Category;
 import org.example.productcatalogservice_june2025_morning.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,6 +19,7 @@ import java.util.List;
 
 @RestController
 public class ProductController {
+
     @Autowired
     private iProductService iProductService;
     @GetMapping("/products")
@@ -90,8 +93,15 @@ public class ProductController {
         productDto.setName(product.getName());
         productDto.setDescription(product.getDescription());
         productDto.setPrice(product.getPrice());
-        productDto.setCategory(product.getCategory());
+
         productDto.setImageUrl(product.getImageUrl());
+        if (product.getCategory()!=null){
+            CategoryDto categoryDto = new CategoryDto();
+            categoryDto.setId(product.getCategory().getId());
+            categoryDto.setName(product.getCategory().getName());
+            categoryDto.setDescription(product.getCategory().getDescription());
+            productDto.setCategory(categoryDto);
+        }
         return productDto;
     }
     private Product from(ProductDto productDto){
@@ -101,7 +111,7 @@ public class ProductController {
         product.setDescription(productDto.getDescription());
         product.setPrice(productDto.getPrice());
         product.setImageUrl(productDto.getImageUrl());
-        if(productDto.getImageUrl() != null) {
+        if(productDto.getCategory() != null) {
             Category category = new Category();
             category.setId(productDto.getCategory().getId());
             category.setName(productDto.getCategory().getName());

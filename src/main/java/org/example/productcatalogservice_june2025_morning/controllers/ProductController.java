@@ -26,9 +26,9 @@ public class ProductController {
     public List<ProductDto> getAllProducts() {
         List<Product> products = iProductService.getAllProducts();
         List<ProductDto> productDtos = new ArrayList<>();
-        if (products == null || products.isEmpty() || products.size() < 1) {
+       /* if (products == null || products.isEmpty() || products.size() < 1) {
             throw  new NullPointerException("products is null or empty");
-        }
+        }*/
         for (Product product : products) {
             productDtos.add(from(product));
         }

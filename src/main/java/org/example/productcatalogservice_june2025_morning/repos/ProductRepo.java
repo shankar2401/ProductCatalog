@@ -3,6 +3,8 @@ package org.example.productcatalogservice_june2025_morning.repos;
 import org.example.productcatalogservice_june2025_morning.dtos.CategoryDto;
 import org.example.productcatalogservice_june2025_morning.models.BaseClass;
 import org.example.productcatalogservice_june2025_morning.models.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +16,11 @@ import java.util.Optional;
 
 @Repository
 public interface ProductRepo extends JpaRepository<Product, Long> {
+
+    //Page<Product> findAllByName(String name, Pageable pageable);
+
+    Page<Product> findByNameEquals(String name, Pageable pageable);
+
     Optional<Product> findById(Long aLong);
 
     Product save(Product product);

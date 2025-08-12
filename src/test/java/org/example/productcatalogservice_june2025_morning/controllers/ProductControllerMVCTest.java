@@ -41,6 +41,7 @@ public class ProductControllerMVCTest {
     @Test
     public void TestGetAllProductsEndpoint_RunSucessfully() throws Exception {
         //Arrange
+
         Product product1 = new Product();
         product1.setId(1L);
         product1.setName("Iphone");
